@@ -18,6 +18,8 @@ document.addEventListener('DOMContentLoaded', () => {
             mobileMenuBtn.classList.remove('active');
             navLinks.classList.remove('active');
             document.body.classList.remove('menu-open');
+            // Collapse all dropdowns when menu closes
+            document.querySelectorAll('.dropdown').forEach(d => d.classList.remove('open'));
         };
 
         mobileMenuBtn.addEventListener('click', (e) => {
@@ -29,10 +31,29 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
 
-        // Close mobile menu when a link is clicked
+        // Mobile tap-to-toggle for dropdown parents
+        const isMobile = () => window.innerWidth <= 768;
+        document.querySelectorAll('.dropdown > a').forEach(link => {
+            link.addEventListener('click', (e) => {
+                if (isMobile()) {
+                    e.preventDefault();
+                    const dropdown = link.parentElement;
+                    const isOpen = dropdown.classList.contains('open');
+                    // Close all others
+                    document.querySelectorAll('.dropdown').forEach(d => d.classList.remove('open'));
+                    // Toggle this one
+                    if (!isOpen) dropdown.classList.add('open');
+                }
+            });
+        });
+
+        // Close mobile menu when a non-dropdown link is clicked
         const links = navLinks.querySelectorAll('a');
         links.forEach(link => {
-            link.addEventListener('click', () => closeMenu());
+            // Skip dropdown parent links (handled above)
+            if (!link.parentElement.classList.contains('dropdown') || link.closest('.dropdown-content')) {
+                link.addEventListener('click', () => closeMenu());
+            }
         });
 
         // Close menu when clicking outside (on the backdrop)
